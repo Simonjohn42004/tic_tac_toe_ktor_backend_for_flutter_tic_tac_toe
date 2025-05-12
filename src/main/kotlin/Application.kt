@@ -1,7 +1,9 @@
 package com.example
 
 import Room
+import com.example.utils.ServerUtils
 import io.ktor.server.application.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
@@ -18,15 +20,36 @@ fun Application.module() {
     configureSockets()
     configureRouting()
     routing {
+
+        get("/create-room") {
+            var createRoomId : Int
+            do {
+                createRoomId = ServerUtils.generateUUID()
+            } while(rooms.contains(createRoomId))
+            val createdRoom = Room(
+                roomId = createRoomId,
+                player1 = null,
+                player2 = null
+            )
+            rooms[createRoomId] = createdRoom
+
+            call.respond(mapOf("roomId" to createRoomId))
+
+
+
+        }
+
         webSocket("/play/{roomId}") {
             val roomIdParam = call.parameters["roomId"]
+
             if (roomIdParam == null) {
                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Missing room ID"))
                 return@webSocket
             }
 
             val roomId = roomIdParam.toIntOrNull()
-            if (roomId == null) {
+
+            if(roomId == null){
                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Invalid room ID"))
                 return@webSocket
             }
@@ -46,7 +69,7 @@ fun Application.module() {
 
 
             val isPlayer1 = room?.player1 == this
-            val opponent = if (isPlayer1) room?.player2 else room?.player1
+            val opponent = if (isPlayer1) room.player2 else room?.player1
 
             if (room?.isFull() == true) {
                 room.sendToBoth("Both players connected. Game start!")
@@ -63,7 +86,7 @@ fun Application.module() {
                 println("Error: ${e.message}")
             } finally {
                 // Clean up on disconnect
-                if (isPlayer1) room?.player1 = null else room?.player2 = null
+                if (isPlayer1) room.player1 = null else room?.player2 = null
                 opponent?.send(Frame.Text("Opponent disconnected"))
 
                 if (room?.player1 == null && room?.player2 == null) {
