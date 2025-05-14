@@ -6,7 +6,10 @@ data class Room(
     var player1: DefaultWebSocketServerSession?,
     var player2: DefaultWebSocketServerSession?
 ) {
-    fun isFull(): Boolean = player1 != null && player2 != null
+    fun isFull(): Boolean {
+        return player1 != null && player2 != null
+    }
+
 
     suspend fun broadcast(sender: DefaultWebSocketServerSession, message: String) {
         if (sender == player1 && player2 != null) {

@@ -32,43 +32,60 @@ suspend fun handleWebSocketSession(session: DefaultWebSocketServerSession, rooms
         return
     }
 
+    println(com.example.rooms)
+
 
     val room = rooms.compute(roomId) { _, existingRoom ->
-        if (existingRoom == null) {
-            Room(roomId, session, null)
-        } else {
-            if (existingRoom.player1 == null) {
-                existingRoom.player1 = session
-            } else if (existingRoom.player2 == null) {
-                existingRoom.player2 = session
-            }
-            existingRoom
+        when {
+            existingRoom == null -> Room(roomId, player1 = session, player2 = null)
+            existingRoom.player1 == null -> { existingRoom.player1 = session; existingRoom }
+            existingRoom.player2 == null -> { existingRoom.player2 = session; existingRoom }
+            else -> existingRoom // No assignment; room already full
         }
     }
 
-
-    val isPlayer1 = room?.player1 == session
-    val opponent = if (isPlayer1) room.player2 else room?.player1
-
-    if (room?.isFull() == true) {
-        room.sendToBoth("Both players connected. Game start!")
+    if (room == null) {
+        session.send("Room assignment failed.")
+        session.close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Room init failed"))
+        return
     }
+
+// Check if the current session was accepted into the room
+    val joined = (room.player1 == session || room.player2 == session)
+
+    if (!joined) {
+        session.send("Room is full.")
+        session.close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, "Room is full"))
+        return
+    }
+
+// Now safely check game start
+    if (room.isFull()) {
+        room.sendToBoth("Both players connected. Game start!")
+    } else {
+        session.send("Waiting for opponent...")
+        println("Waiting for opponent...")
+    }
+
+    println("Session: ${session.hashCode()}, player1: ${room.player1?.hashCode()}, player2: ${room.player2?.hashCode()}")
+
 
     try {
         for (frame in session.incoming) {
             if (frame is Frame.Text) {
                 val text = frame.readText()
-                room?.broadcast(session, text)
+                room.broadcast(session, text)
             }
         }
     } catch (e: Exception) {
         println("Error: ${e.message}")
     } finally {
         // Clean up on disconnect
-        if (isPlayer1) room.player1 = null else room?.player2 = null
-        opponent?.send(Frame.Text("Opponent disconnected"))
+        if (session == room.player1) room.player1 = null else room.player2 = null
+        room.player2?.send(Frame.Text("Opponent disconnected"))
 
-        if (room?.player1 == null && room?.player2 == null) {
+        if (room.player1 == null && room.player2 == null) {
+            print("Connection closed")
             rooms.remove(roomId)
         }
     }
