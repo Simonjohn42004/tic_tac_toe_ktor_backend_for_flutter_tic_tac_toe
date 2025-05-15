@@ -19,7 +19,7 @@ fun Application.configureRoutes(rooms: ConcurrentHashMap<Int, Room>) {
         }
 
         // HTTP route to validate and join a room
-        post("/join-room/{roomId}") {
+        get ("/join-room/{roomId}") {
             val roomIdParam = call.parameters["roomId"]
             val roomId = roomIdParam?.toIntOrNull()
 
