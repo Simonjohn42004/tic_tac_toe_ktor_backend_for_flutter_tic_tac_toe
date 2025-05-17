@@ -15,6 +15,7 @@ fun Application.configureRoutes(rooms: ConcurrentHashMap<Int, Room>) {
         // HTTP route to create room
         get("/create-room") {
             val roomId = generateUniqueRoomId(rooms)
+            println("Room with $roomId is created")
             call.respond(mapOf("roomId" to roomId))
         }
 
