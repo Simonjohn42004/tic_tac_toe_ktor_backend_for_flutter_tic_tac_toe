@@ -1,3 +1,4 @@
+import com.example.utils.ServerUtils
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.websocket.Frame
 
@@ -19,7 +20,7 @@ data class Room(
         } else {
             println(player1)
             println(player2)
-            sendToBoth("Network Connection Error! Please Create a New Room")
+            sendToBoth(ServerUtils.jsonMessage("Network Connection Error! Please Create a New Room"))
         }
     }
 
