@@ -1,6 +1,6 @@
 package com.example
 
-import Room
+import com.example.model.Room
 import com.example.utils.ServerUtils
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -31,6 +31,7 @@ fun Application.configureRoutes(rooms: ConcurrentHashMap<Int, Room>) {
                 else -> call.respond(HttpStatusCode.OK, "Room available")
             }
         }
+
 
         // SINGLE WebSocket route used by both creator and joiner
         webSocket("/play/{roomId}") {

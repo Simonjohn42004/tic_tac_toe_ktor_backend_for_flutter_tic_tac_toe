@@ -1,3 +1,5 @@
+package com.example.model
+
 import com.example.utils.ServerUtils
 import io.ktor.server.websocket.DefaultWebSocketServerSession
 import io.ktor.websocket.Frame
@@ -5,12 +7,12 @@ import io.ktor.websocket.Frame
 data class Room(
     val roomId: Int,
     var player1: DefaultWebSocketServerSession?,
-    var player2: DefaultWebSocketServerSession?
+    var player2: DefaultWebSocketServerSession?,
 ) {
+
     fun isFull(): Boolean {
         return player1 != null && player2 != null
     }
-
 
     suspend fun broadcast(sender: DefaultWebSocketServerSession, message: String) {
         if (sender == player1 && player2 != null) {
@@ -24,9 +26,10 @@ data class Room(
         }
     }
 
-
     suspend fun sendToBoth(message: String) {
         player1?.send(Frame.Text(message))
         player2?.send(Frame.Text(message))
     }
+
+
 }

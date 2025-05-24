@@ -1,6 +1,6 @@
 package com.example
 
-import Room
+import com.example.model.Room
 import io.ktor.server.application.*
 import java.util.concurrent.ConcurrentHashMap
 

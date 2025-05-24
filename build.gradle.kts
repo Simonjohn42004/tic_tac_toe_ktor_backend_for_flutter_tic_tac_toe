@@ -16,6 +16,32 @@ repositories {
     mavenCentral()
 }
 
+
+ktor {
+    fatJar {
+        archiveFileName.set("ktor-app.jar")
+    }
+
+    docker {
+        jreVersion.set(JavaVersion.VERSION_21)
+
+        externalRegistry.set(
+            io.ktor.plugin.features.DockerImageRegistry.dockerHub(
+                appName = provider { "ktor-app" },
+                username = providers.environmentVariable("DOCKER_HUB_USERNAME"),
+                password = providers.environmentVariable("DOCKER_HUB_PASSWORD")
+            )
+        )
+    }
+}
+
+jib {
+    to {
+        image = "docker.io/simonjohn/ktor-app"
+    }
+}
+
+
 dependencies {
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.server.core)

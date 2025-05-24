@@ -2,7 +2,7 @@ package com.example
 
 import io.ktor.websocket.close
 import kotlin.text.toIntOrNull
-import Room
+import com.example.model.Room
 import com.example.utils.ServerUtils
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
@@ -65,7 +65,12 @@ suspend fun handleWebSocketSession(session: DefaultWebSocketServerSession, rooms
     }
 
     if (room.isFull()) {
-        room.sendToBoth(ServerUtils.jsonMessage("Both players connected. Game start!"))
+
+        if (room.isFull()) {
+
+            room.sendToBoth(ServerUtils.jsonMessage("Both players connected. Game start!"))
+        }
+
     } else {
         session.send(Frame.Text(ServerUtils.jsonMessage("Waiting for opponent...")))
         println("Waiting for opponent...")
