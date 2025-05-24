@@ -1,6 +1,5 @@
 package com.example.utils
 
-import kotlinx.serialization.json.Json
 import java.util.UUID
 import kotlin.math.abs
 
@@ -16,8 +15,8 @@ object ServerUtils {
     }
 
     private fun escapeJson(text: String): String {
-        // Basic escaping; could use kotlinx.serialization or Gson if needed
         return "\"" + text.replace("\"", "\\\"") + "\""
     }
+
 
 }

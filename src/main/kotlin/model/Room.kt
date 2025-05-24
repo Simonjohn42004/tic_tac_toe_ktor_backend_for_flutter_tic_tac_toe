@@ -1,8 +1,8 @@
 package com.example.model
 
 import com.example.utils.ServerUtils
-import io.ktor.server.websocket.DefaultWebSocketServerSession
-import io.ktor.websocket.Frame
+import io.ktor.server.websocket.*
+import io.ktor.websocket.*
 
 data class Room(
     val roomId: Int,
